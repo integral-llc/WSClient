@@ -122,6 +122,7 @@ namespace WSClient
 
                     _logEntries.Add(entry);
                     lvLog.VirtualListSize = _logEntries.Count;
+                    lvLog.EnsureVisible(_logEntries.Count - 1);
                 };
             if (InvokeRequired)
                 BeginInvoke(a);
@@ -179,6 +180,7 @@ namespace WSClient
                 return;
 
             txtOut.Text = _logEntries[lvLog.SelectedIndices[0]].Message;
+            TryReformatOutToJson();
         }
 
         private void txtIn_KeyDown(object sender, KeyEventArgs e)
@@ -246,14 +248,21 @@ namespace WSClient
         {
             if (e.Control && e.KeyCode == Keys.J)
             {
-                if (txtOut.Text.Length > 1)
+                TryReformatOutToJson();
+            }
+        }
+
+        private void TryReformatOutToJson()
+        {
+            if (txtOut.Text.Length > 1)
+            {
+                try
                 {
-                    try
-                    {
-                        dynamic parsedJson = JsonConvert.DeserializeObject(txtOut.Text);
-                        txtOut.Text = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
-                    }
-                    catch { }
+                    dynamic parsedJson = JsonConvert.DeserializeObject(txtOut.Text);
+                    txtOut.Text = JsonConvert.SerializeObject(parsedJson, Formatting.Indented);
+                }
+                catch
+                {
                 }
             }
         }
